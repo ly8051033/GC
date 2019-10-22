@@ -1,8 +1,6 @@
 package com.ly.kafkademo;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
@@ -17,6 +15,7 @@ public class KafkaProducerDemo {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         props.put(ProducerConfig.ACKS_CONFIG,"0");
+        props.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
         return props;
     }
 
@@ -25,7 +24,11 @@ public class KafkaProducerDemo {
         KafkaProducer<String,String> kafkaProducer = new KafkaProducer<String, String>(props);
         ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>(topic, topic,"Hello,kafka");
         try{
-            kafkaProducer.send(producerRecord);
+            kafkaProducer.send(producerRecord, new Callback() {
+                public void onCompletion(RecordMetadata metadata, Exception exception) {
+                    
+                }
+            });
         } catch (Exception e){
             e.printStackTrace();
         }
